@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { InquiryForm } from "@/components/inquiry-form";
 import { SectionHeader } from "@/components/section-header";
 import { siteConfig } from "@/lib/site";
@@ -39,7 +40,9 @@ export default function ContactPage() {
         </div>
       </div>
       <div className="lg:col-span-3">
-        <InquiryForm />
+        <Suspense fallback={<div className="rounded-3xl border border-black/10 bg-white p-6 shadow-soft sm:p-8">Loading form...</div>}>
+          <InquiryForm />
+        </Suspense>
       </div>
     </section>
   );
