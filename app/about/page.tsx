@@ -62,7 +62,7 @@ export default function AboutPage() {
               <div className="mt-6 rounded-2xl border border-black/10 bg-[#f7f1e8] p-5">
                 <p className="text-xs uppercase tracking-[0.2em] text-pine">The Promise</p>
                 <p className="mt-2 font-serif text-xl text-ink">
-                  You live the day. I protect the feeling of it.
+                  You stay in the moment. I preserve how it felt.
                 </p>
               </div>
             </div>

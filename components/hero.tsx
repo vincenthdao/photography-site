@@ -18,7 +18,7 @@ export function Hero() {
           <div className="mx-auto w-full max-w-6xl px-4 pb-8 sm:px-6 sm:pb-10 lg:px-8 lg:pb-14">
             <p className="text-xs font-semibold uppercase tracking-[0.26em] text-white/90">Wedding & Engagement Photography</p>
             <h1 className="mt-3 max-w-3xl font-serif text-4xl leading-[1.02] text-white drop-shadow sm:text-5xl xl:text-6xl">
-              Come as you are, and let the story unfold.
+              You live the day. I protect the feeling of it.
             </h1>
             <p className="mt-4 max-w-2xl text-sm text-white/90 sm:text-base">
               For promises spoken softly and glances that say everything, I create photographs that let you feel it all again.

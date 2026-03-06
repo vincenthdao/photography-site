@@ -32,18 +32,16 @@ async function readCategory(category: string): Promise<FAQCarouselPhoto[]> {
 }
 
 export async function getFAQCarouselPhotos(): Promise<FAQCarouselPhoto[]> {
-  const [weddings, engagements, creative] = await Promise.all([
+  const [weddings, engagements] = await Promise.all([
     readCategory("weddings"),
-    readCategory("engagements"),
-    readCategory("creative")
+    readCategory("engagements")
   ]);
 
   const interleaved: FAQCarouselPhoto[] = [];
-  const max = Math.max(weddings.length, engagements.length, creative.length);
+  const max = Math.max(weddings.length, engagements.length);
   for (let i = 0; i < max; i += 1) {
     if (weddings[i]) interleaved.push(weddings[i]);
     if (engagements[i]) interleaved.push(engagements[i]);
-    if (creative[i]) interleaved.push(creative[i]);
   }
 
   return interleaved.slice(0, 120);

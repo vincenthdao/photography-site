@@ -29,7 +29,7 @@ export default async function GalleryPage({ searchParams }: { searchParams: Prom
       <SectionHeader
         eyebrow="Gallery"
         title="An immersive archive of recent work"
-        subtitle="Choose a collection below to expand it full-screen. Add images into the gallery folders and they appear automatically."
+        subtitle="Step into the work by story and atmosphere. Each collection is designed to be felt, not just viewed."
       />
 
       <SuperGalleryView collections={collections} initialCategory={initialCategory} />

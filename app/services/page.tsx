@@ -137,23 +137,40 @@ export default function ServicesPage() {
       <section className="mx-auto w-full max-w-6xl px-4 pb-12 sm:px-6 lg:px-8">
         <SectionHeader
           eyebrow="Additional Commissions"
-          title="Additional assignments"
-          subtitle="Portrait, event, and editorial commissions are available on a select basis."
+          title="Need something beyond the main collections?"
+          subtitle="I occasionally accept other assignments outside the main collections."
         />
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {additionalServices.map((service) => (
-            <article key={service.slug} className="rounded-2xl border border-black/10 bg-white p-5 shadow-soft">
-              <h3 className="font-serif text-2xl text-ink">{service.title}</h3>
-              <p className="mt-2 text-sm text-ink/80">{service.summary}</p>
-              <p className="mt-3 text-sm text-ink/70">Custom quote based on scope and location.</p>
-              <Link
-                href={`/contact?service=${service.slug}`}
-                className="mt-4 inline-block rounded-full border border-ink/20 px-4 py-2 text-sm font-semibold text-ink transition hover:border-pine hover:text-pine"
-              >
-                Inquire
-              </Link>
-            </article>
-          ))}
+        <div className="overflow-hidden rounded-3xl border border-[#2f3a34]/20 bg-[linear-gradient(140deg,#edf2ec_0%,#dbe4dc_52%,#e9efea_100%)] shadow-soft">
+          <div className="grid gap-0 lg:grid-cols-[1fr_1fr]">
+            <div className="p-6 sm:p-8">
+              <p className="text-xs uppercase tracking-[0.2em] text-[#2f3a34]/75">Select Availability</p>
+              <h3 className="mt-2 font-serif text-3xl text-[#1f2924]">Editorial and personal commissions</h3>
+              <p className="mt-3 max-w-xl text-sm leading-relaxed text-[#1f2924]/85">
+                For projects that do not fit the signature offerings, I take on a limited number of additional assignments with
+                the same level of care, story focus, and intentional direction.
+              </p>
+              <p className="mt-4 text-xs uppercase tracking-[0.14em] text-[#1f2924]/65">Custom quote based on scope, timing, and location</p>
+            </div>
+
+            <div className="border-t border-[#2f3a34]/15 bg-white/35 p-6 sm:p-8 lg:border-l lg:border-t-0">
+              <div className="grid gap-3 sm:grid-cols-2">
+                {additionalServices.map((service) => (
+                  <article key={service.slug} className="rounded-2xl border border-[#2f3a34]/15 bg-white/70 p-4">
+                    <p className="font-serif text-xl text-[#1f2924]">{service.title}</p>
+                    <p className="mt-1 text-sm text-[#1f2924]/75">{service.summary}</p>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="mt-6 flex justify-start">
+          <Link
+            href="/contact"
+            className="inline-block rounded-full border border-[#2f3a34]/35 bg-white/70 px-5 py-2.5 text-sm font-semibold text-[#1f2924] transition hover:border-[#2f3a34]/70 hover:bg-white/90"
+          >
+            Ask About Other Work
+          </Link>
         </div>
       </section>
 

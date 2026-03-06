@@ -1,9 +1,10 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { GalleryCategory, GalleryCollections, GalleryPhoto } from "@/lib/super-gallery";
+import type { GalleryCategory, GalleryCollections, GalleryPhoto } from "@/lib/super-gallery";
 
 interface SuperGalleryViewProps {
   collections: GalleryCollections;
@@ -14,12 +15,12 @@ const sectionMeta: Record<GalleryCategory, { title: string; subtitle: string; ba
   weddings: {
     title: "Weddings",
     subtitle: "Full-day narratives, quiet gestures, and lasting moments.",
-    background: "bg-[linear-gradient(130deg,#f7efe5_0%,#efe3d3_52%,#f8f4ec_100%)]"
+    background: "bg-[linear-gradient(132deg,#f6eee7_0%,#e6d4c4_44%,#f5ece5_100%)]"
   },
   engagements: {
     title: "Engagements",
     subtitle: "Editorial portraits with softness, chemistry, and intention.",
-    background: "bg-[linear-gradient(120deg,#f5f1ea_0%,#e9e1d7_45%,#f8f5ef_100%)]"
+    background: "bg-[linear-gradient(124deg,#eef4f1_0%,#d6e3db_46%,#f4f8f5_100%)]"
   },
   creative: {
     title: "Creative Work",
@@ -94,6 +95,8 @@ const engagementFlow: FlowGroup[] = [
     keywords: ["texture", "hands", "close", "detail"]
   }
 ];
+
+const PORTRAIT_KEYWORDS = ["portrait", "headshot", "model", "face", "self"] as const;
 
 function hashString(value: string): number {
   let hash = 5381;
@@ -405,7 +408,12 @@ function GalleryLightbox({
   if (!mounted) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[140] animate-[fadeIn_220ms_ease-out] bg-black/88 backdrop-blur-sm" onPointerDown={onClose}>
+    <div
+      className="fixed inset-0 z-[140] animate-[fadeIn_220ms_ease-out] bg-black/88 backdrop-blur-sm"
+      onPointerDown={onClose}
+      onContextMenu={(event) => event.preventDefault()}
+      onDragStart={(event) => event.preventDefault()}
+    >
       <div className="absolute inset-0 flex items-center justify-center p-3 sm:p-6 lg:p-8">
         <div className="relative w-[min(92vw,1500px)] pointer-events-none">
           <button
@@ -422,21 +430,24 @@ function GalleryLightbox({
             type="button"
             onClick={onPrev}
             onPointerDown={(event) => event.stopPropagation()}
-            className="pointer-events-auto absolute -left-1 top-1/2 z-20 -translate-y-1/2 rounded-full border border-white/35 bg-black/45 px-3 py-2 text-sm font-semibold text-white transition hover:bg-black/70 sm:-left-2"
+            className="pointer-events-auto absolute left-3 top-1/2 z-20 -translate-y-1/2 rounded-full border border-white/55 bg-black/65 p-3 text-xl font-semibold text-white shadow-[0_10px_26px_rgba(0,0,0,0.42)] transition hover:scale-105 hover:bg-black/80 sm:left-5 sm:p-3.5"
             aria-label="Previous image"
           >
             ←
           </button>
 
-          <figure className="pointer-events-auto relative mx-auto w-full" onPointerDown={(event) => event.stopPropagation()}>
-            <Image
-              src={photo.src}
-              alt={photo.alt || "Fullscreen gallery image"}
-              width={2800}
-              height={1900}
-              priority
-              className="h-[76vh] w-full rounded-xl object-contain sm:h-[82vh]"
-            />
+          <figure className="pointer-events-none relative mx-auto w-full select-none" onContextMenu={(event) => event.preventDefault()}>
+            <div className="pointer-events-auto mx-auto w-fit" onPointerDown={(event) => event.stopPropagation()}>
+              <Image
+                src={photo.src}
+                alt={photo.alt || "Fullscreen gallery image"}
+                width={2800}
+                height={1900}
+                priority
+                draggable={false}
+                className="h-[76vh] w-auto max-w-[92vw] rounded-xl object-contain sm:h-[82vh]"
+              />
+            </div>
             <figcaption className="mt-2 text-center text-[11px] uppercase tracking-[0.16em] text-white/80">
               {activeIndex + 1} / {photos.length}
             </figcaption>
@@ -446,7 +457,7 @@ function GalleryLightbox({
             type="button"
             onClick={onNext}
             onPointerDown={(event) => event.stopPropagation()}
-            className="pointer-events-auto absolute -right-1 top-1/2 z-20 -translate-y-1/2 rounded-full border border-white/35 bg-black/45 px-3 py-2 text-sm font-semibold text-white transition hover:bg-black/70 sm:-right-2"
+            className="pointer-events-auto absolute right-3 top-1/2 z-20 -translate-y-1/2 rounded-full border border-white/55 bg-black/65 p-3 text-xl font-semibold text-white shadow-[0_10px_26px_rgba(0,0,0,0.42)] transition hover:scale-105 hover:bg-black/80 sm:right-5 sm:p-3.5"
             aria-label="Next image"
           >
             →
@@ -473,9 +484,20 @@ function GallerySection({ category, photos }: { category: GalleryCategory; photo
   const [activePhotoIndex, setActivePhotoIndex] = useState<number | null>(null);
   const [isCreativePreparing, setIsCreativePreparing] = useState(false);
   const creativeSortCacheRef = useRef<Map<string, GalleryPhoto[]>>(new Map());
-  const creativeOrientationCacheRef = useRef<Map<string, "landscape" | "portrait">>(new Map());
+  const orientationCacheRef = useRef<Map<string, "landscape" | "portrait">>(new Map());
   const [creativeOrientations, setCreativeOrientations] = useState<Map<string, "landscape" | "portrait">>(new Map());
-  const portraitKeywords = ["portrait", "headshot", "model", "face", "self"];
+
+  function detectOrientation(src: string): Promise<"landscape" | "portrait"> {
+    return new Promise((resolve) => {
+      const img = new window.Image();
+      img.onload = () => {
+        const ratio = img.naturalWidth / Math.max(1, img.naturalHeight);
+        resolve(ratio >= 1.08 ? "landscape" : "portrait");
+      };
+      img.onerror = () => resolve("portrait");
+      img.src = src;
+    });
+  }
 
   const weddingEngagementSections = useMemo(() => {
     if (category !== "weddings" && category !== "engagements") return [];
@@ -485,10 +507,10 @@ function GallerySection({ category, photos }: { category: GalleryCategory; photo
   const creativePhotosForFlow = useMemo(() => {
     if (category !== "creative") return [];
     const nonPortrait = displayPhotos.filter(
-      (photo) => !portraitKeywords.some((keyword) => photo.fileName.toLowerCase().includes(keyword))
+      (photo) => !PORTRAIT_KEYWORDS.some((keyword) => photo.fileName.toLowerCase().includes(keyword))
     );
     return nonPortrait.length > 0 ? nonPortrait : displayPhotos;
-  }, [category, displayPhotos, portraitKeywords]);
+  }, [category, displayPhotos]);
 
   const orderedPhotos = useMemo(() => {
     if (category === "weddings" || category === "engagements") {
@@ -497,25 +519,7 @@ function GallerySection({ category, photos }: { category: GalleryCategory; photo
     return creativePhotosForFlow;
   }, [category, weddingEngagementSections, creativePhotosForFlow]);
 
-  const photoIndexBySrc = useMemo(() => {
-    const map = new Map<string, number>();
-    orderedPhotos.forEach((photo, index) => map.set(photo.src, index));
-    return map;
-  }, [orderedPhotos]);
-
   useEffect(() => {
-    async function detectOrientation(src: string): Promise<"landscape" | "portrait"> {
-      return new Promise((resolve) => {
-        const img = new window.Image();
-        img.onload = () => {
-          const ratio = img.naturalWidth / Math.max(1, img.naturalHeight);
-          resolve(ratio >= 1.08 ? "landscape" : "portrait");
-        };
-        img.onerror = () => resolve("portrait");
-        img.src = src;
-      });
-    }
-
     if (category !== "creative") {
       setIsCreativePreparing(false);
       setDisplayPhotos(photos);
@@ -555,7 +559,7 @@ function GallerySection({ category, photos }: { category: GalleryCategory; photo
     creativeSortCacheRef.current.set(cacheKey, sorted);
 
     const orientations = new Map<string, "landscape" | "portrait">();
-    const uncached = sorted.filter((photo) => !creativeOrientationCacheRef.current.has(photo.src));
+    const uncached = sorted.filter((photo) => !orientationCacheRef.current.has(photo.src));
 
     if (uncached.length > 0) {
       Promise.all(
@@ -565,10 +569,10 @@ function GallerySection({ category, photos }: { category: GalleryCategory; photo
         }))
       )
         .then((results) => {
-          results.forEach(({ src, orientation }) => creativeOrientationCacheRef.current.set(src, orientation));
+          results.forEach(({ src, orientation }) => orientationCacheRef.current.set(src, orientation));
         })
         .finally(() => {
-          sorted.forEach((photo) => orientations.set(photo.src, creativeOrientationCacheRef.current.get(photo.src) ?? "portrait"));
+          sorted.forEach((photo) => orientations.set(photo.src, orientationCacheRef.current.get(photo.src) ?? "portrait"));
           setCreativeOrientations(orientations);
           setDisplayPhotos(sorted);
           setIsCreativePreparing(false);
@@ -576,11 +580,34 @@ function GallerySection({ category, photos }: { category: GalleryCategory; photo
       return;
     }
 
-    sorted.forEach((photo) => orientations.set(photo.src, creativeOrientationCacheRef.current.get(photo.src) ?? "portrait"));
+    sorted.forEach((photo) => orientations.set(photo.src, orientationCacheRef.current.get(photo.src) ?? "portrait"));
     setCreativeOrientations(orientations);
     setDisplayPhotos(sorted);
     setIsCreativePreparing(false);
   }, [category, photos]);
+
+  useEffect(() => {
+    const uncached = orderedPhotos.filter((photo) => !orientationCacheRef.current.has(photo.src));
+
+    if (uncached.length === 0) {
+      const next = new Map<string, "landscape" | "portrait">();
+      orderedPhotos.forEach((photo) => next.set(photo.src, orientationCacheRef.current.get(photo.src) ?? "portrait"));
+      setCreativeOrientations(next);
+      return;
+    }
+
+    Promise.all(
+      uncached.map(async (photo) => ({
+        src: photo.src,
+        orientation: await detectOrientation(photo.src)
+      }))
+    ).then((results) => {
+      results.forEach(({ src, orientation }) => orientationCacheRef.current.set(src, orientation));
+      const next = new Map<string, "landscape" | "portrait">();
+      orderedPhotos.forEach((photo) => next.set(photo.src, orientationCacheRef.current.get(photo.src) ?? "portrait"));
+      setCreativeOrientations(next);
+    });
+  }, [orderedPhotos]);
 
   useEffect(() => {
     setActivePhotoIndex(null);
@@ -603,8 +630,8 @@ function GallerySection({ category, photos }: { category: GalleryCategory; photo
   }, [activePhotoIndex, orderedPhotos.length]);
 
   function openLightbox(photoSrc: string) {
-    const index = photoIndexBySrc.get(photoSrc);
-    if (index !== undefined) setActivePhotoIndex(index);
+    const index = orderedPhotos.findIndex((photo) => photo.src === photoSrc);
+    if (index >= 0) setActivePhotoIndex(index);
   }
 
   function goPrev() {
@@ -616,7 +643,11 @@ function GallerySection({ category, photos }: { category: GalleryCategory; photo
   }
 
   return (
-    <section className={`min-h-screen rounded-[28px] border border-black/10 p-6 shadow-soft sm:p-8 ${meta.background}`}>
+    <section
+      className={`min-h-screen rounded-[28px] border border-black/10 p-6 shadow-soft sm:p-8 ${meta.background}`}
+      onContextMenu={(event) => event.preventDefault()}
+      onDragStart={(event) => event.preventDefault()}
+    >
       <div className="mb-6">
         <h3 className="font-serif text-4xl text-ink">{meta.title}</h3>
         <p className="mt-2 text-sm text-ink/75 sm:text-base">{meta.subtitle}</p>
@@ -634,10 +665,27 @@ function GallerySection({ category, photos }: { category: GalleryCategory; photo
                 <div key={group.id}>
                   <h4 className="font-serif text-2xl text-ink">{group.title}</h4>
                   <p className="mt-1 text-sm text-ink/70">{group.subtitle}</p>
-                  <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-                    {photos.map((photo) => (
-                      <figure key={photo.src} className="group overflow-hidden rounded-[16px] shadow-soft transition">
-                        <button type="button" onClick={() => openLightbox(photo.src)} className="block w-full cursor-zoom-in">
+                  <div className="mt-3 grid grid-flow-row-dense grid-cols-1 items-start gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4 lg:gap-5 xl:grid-cols-5">
+                    {photos.map((photo, index) => {
+                      const orientation = creativeOrientations.get(photo.src) ?? "portrait";
+                      const isLandscape = orientation === "landscape";
+                      return (
+                      <figure
+                        key={photo.src}
+                        className={`${creativeTileClasses(index, isLandscape, false)} select-none`}
+                        onContextMenu={(event) => event.preventDefault()}
+                        onDragStart={(event) => event.preventDefault()}
+                      >
+                        <Link
+                          href={photo.src}
+                          target="_blank"
+                          rel="noreferrer"
+                          onClick={(event) => {
+                            event.preventDefault();
+                            openLightbox(photo.src);
+                          }}
+                          className="block w-full cursor-zoom-in"
+                        >
                           <Image
                             src={photo.src}
                             alt={photo.alt || `${meta.title} photo`}
@@ -645,12 +693,19 @@ function GallerySection({ category, photos }: { category: GalleryCategory; photo
                             height={1700}
                             loading="lazy"
                             quality={72}
-                            sizes="(min-width: 1536px) 18vw, (min-width: 1280px) 22vw, (min-width: 1024px) 25vw, (min-width: 768px) 33vw, 48vw"
-                            className="h-72 w-full rounded-[14px] object-contain transition-transform duration-500 ease-out sm:h-80 group-hover:scale-[1.05]"
+                            draggable={false}
+                            sizes={isLandscape
+                              ? "(min-width: 1536px) 38vw, (min-width: 1280px) 44vw, (min-width: 1024px) 50vw, (min-width: 640px) 92vw, 100vw"
+                              : "(min-width: 1536px) 18vw, (min-width: 1280px) 22vw, (min-width: 1024px) 24vw, (min-width: 640px) 46vw, 100vw"}
+                            className={`w-full rounded-[14px] bg-[#f2eade] object-contain transition-transform duration-700 ease-out ${
+                              isLandscape ? "aspect-[16/10]" : "aspect-[4/5]"
+                            } group-hover:scale-[1.04]`}
                           />
-                        </button>
+                          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/15 mix-blend-soft-light" />
+                        </Link>
                       </figure>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               ))}
@@ -672,8 +727,22 @@ function GallerySection({ category, photos }: { category: GalleryCategory; photo
                     const orientation = creativeOrientations.get(photo.src) ?? "portrait";
                     const isLandscape = orientation === "landscape";
                     return (
-                      <figure key={photo.src} className={creativeTileClasses(index, isLandscape, false)}>
-                        <button type="button" onClick={() => openLightbox(photo.src)} className="block w-full cursor-zoom-in">
+                      <figure
+                        key={photo.src}
+                        className={`${creativeTileClasses(index, isLandscape, false)} select-none`}
+                        onContextMenu={(event) => event.preventDefault()}
+                        onDragStart={(event) => event.preventDefault()}
+                      >
+                        <Link
+                          href={photo.src}
+                          target="_blank"
+                          rel="noreferrer"
+                          onClick={(event) => {
+                            event.preventDefault();
+                            openLightbox(photo.src);
+                          }}
+                          className="block w-full cursor-zoom-in"
+                        >
                           <Image
                             src={photo.src}
                             alt={photo.alt || `${meta.title} photo`}
@@ -681,6 +750,7 @@ function GallerySection({ category, photos }: { category: GalleryCategory; photo
                             height={1700}
                             loading={index < 8 ? "eager" : "lazy"}
                             quality={72}
+                            draggable={false}
                             sizes={isLandscape
                               ? "(min-width: 1536px) 38vw, (min-width: 1280px) 44vw, (min-width: 1024px) 50vw, (min-width: 640px) 92vw, 100vw"
                               : "(min-width: 1536px) 18vw, (min-width: 1280px) 22vw, (min-width: 1024px) 24vw, (min-width: 640px) 46vw, 100vw"}
@@ -689,7 +759,7 @@ function GallerySection({ category, photos }: { category: GalleryCategory; photo
                             } group-hover:scale-[1.04]`}
                           />
                           <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/15 mix-blend-soft-light" />
-                        </button>
+                        </Link>
                       </figure>
                     );
                   })}
@@ -715,6 +785,10 @@ function GallerySection({ category, photos }: { category: GalleryCategory; photo
 
 export function SuperGalleryView({ collections, initialCategory = null }: SuperGalleryViewProps) {
   const [activeCategory, setActiveCategory] = useState<GalleryCategory | null>(initialCategory);
+
+  useEffect(() => {
+    setActiveCategory(initialCategory);
+  }, [initialCategory]);
 
   const order: GalleryCategory[] = ["weddings", "engagements", "creative"];
   const randomized = useMemo(() => {
@@ -745,9 +819,9 @@ export function SuperGalleryView({ collections, initialCategory = null }: SuperG
             const meta = sectionMeta[category];
             const previews = previewGridSets[category];
             return (
-              <button
+              <Link
                 key={category}
-                type="button"
+                href={`/gallery?category=${category}`}
                 onClick={() => setActiveCategory(category)}
                 className={`group relative overflow-hidden rounded-[26px] border border-black/10 p-4 text-left shadow-soft transition duration-500 hover:-translate-y-1.5 hover:shadow-[0_26px_46px_rgba(28,20,12,0.14)] ${meta.background}`}
               >
@@ -788,7 +862,7 @@ export function SuperGalleryView({ collections, initialCategory = null }: SuperG
                 <p className="mt-4 inline-flex items-center rounded-full border border-black/10 bg-white/80 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.15em] text-ink/70 transition group-hover:border-pine/40 group-hover:text-pine">
                   Open Collection
                 </p>
-              </button>
+              </Link>
             );
           })}
         </div>
@@ -801,33 +875,42 @@ export function SuperGalleryView({ collections, initialCategory = null }: SuperG
       <div className="mx-auto w-full max-w-[1700px] space-y-6 px-4 sm:px-6 lg:px-8">
         <div className="sticky top-20 z-20 flex flex-col gap-4 rounded-2xl border border-black/10 bg-white/90 p-4 backdrop-blur sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => setActiveCategory(null)}
+            <Link
+              href="/gallery"
+              onClick={(event) => {
+                event.preventDefault();
+                setActiveCategory(null);
+              }}
               className="rounded-full border border-black/15 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-ink transition hover:border-pine"
             >
               All Galleries
-            </button>
+            </Link>
             {order.map((value) => (
-              <button
+              <Link
                 key={value}
-                type="button"
-                onClick={() => setActiveCategory(value)}
+                href={`/gallery?category=${value}`}
+                onClick={(event) => {
+                  event.preventDefault();
+                  setActiveCategory(value);
+                }}
                 className={`rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] transition ${
                   activeCategory === value ? "bg-ink text-oat" : "border border-black/15 bg-white text-ink hover:border-pine"
                 }`}
               >
                 {sectionMeta[value].title}
-              </button>
+              </Link>
             ))}
           </div>
-          <button
-            type="button"
-            onClick={() => setActiveCategory(null)}
+          <Link
+            href="/gallery"
+            onClick={(event) => {
+              event.preventDefault();
+              setActiveCategory(null);
+            }}
             className="rounded-full border border-black/15 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-ink transition hover:border-pine"
           >
             Close
-          </button>
+          </Link>
         </div>
 
         <GallerySection category={activeCategory} photos={randomized[activeCategory]} />

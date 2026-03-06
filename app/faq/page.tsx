@@ -163,10 +163,20 @@ export default async function FAQPage() {
 
               <div className="mt-5 space-y-3">
                 {section.items.map((item) => (
-                  <div key={item.question} className="rounded-xl border border-black/10 bg-[#f8f4ef] p-4">
-                    <p className="text-base font-semibold text-ink">{item.question}</p>
-                    <p className="mt-3 text-sm leading-relaxed text-ink/80">{item.answer}</p>
-                  </div>
+                  <details
+                    key={item.question}
+                    className="group rounded-xl border border-black/10 bg-[#f8f4ef] p-4 transition hover:border-[#c5a47e]/60 hover:bg-[#f5efe8]"
+                  >
+                    <summary className="flex cursor-pointer list-none items-start justify-between gap-3 [&::-webkit-details-marker]:hidden">
+                      <span className="text-base font-semibold text-ink transition group-hover:text-black">{item.question}</span>
+                      <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#c5a47e]/60 bg-[#c5a47e]/15 text-[#7c6345] transition duration-300 group-hover:bg-[#c5a47e]/30 group-open:rotate-180">
+                        <svg aria-hidden="true" viewBox="0 0 20 20" className="h-5 w-5 fill-current">
+                          <path d="M5.2 7.5a1 1 0 0 1 1.4 0L10 10.9l3.4-3.4a1 1 0 1 1 1.4 1.4l-4.1 4.1a1 1 0 0 1-1.4 0L5.2 8.9a1 1 0 0 1 0-1.4Z" />
+                        </svg>
+                      </span>
+                    </summary>
+                    <p className="mt-3 pr-8 text-sm leading-relaxed text-ink/80">{item.answer}</p>
+                  </details>
                 ))}
               </div>
             </div>
@@ -186,6 +196,14 @@ export default async function FAQPage() {
 
         <aside className="lg:sticky lg:top-24">
           <FAQSideCarousel photos={carouselPhotos} />
+          <div className="mt-4 rounded-2xl border border-black/10 bg-white/90 p-4 text-center shadow-soft">
+            <Link
+              href="/gallery"
+              className="inline-flex items-center rounded-full border border-ink/20 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-ink transition hover:border-pine hover:text-pine"
+            >
+              View All Galleries
+            </Link>
+          </div>
         </aside>
       </div>
     </section>
