@@ -8,6 +8,9 @@ export interface GalleryPhoto {
   category: GalleryCategory;
   fileName: string;
   mtimeMs: number;
+  width?: number;
+  height?: number;
+  orientation?: "landscape" | "portrait";
 }
 
 export interface GalleryCollections {

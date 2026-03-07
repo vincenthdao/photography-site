@@ -484,19 +484,24 @@ function GallerySection({ category, photos }: { category: GalleryCategory; photo
   const [activePhotoIndex, setActivePhotoIndex] = useState<number | null>(null);
   const [isCreativePreparing, setIsCreativePreparing] = useState(false);
   const creativeSortCacheRef = useRef<Map<string, GalleryPhoto[]>>(new Map());
-  const orientationCacheRef = useRef<Map<string, "landscape" | "portrait">>(new Map());
-  const [creativeOrientations, setCreativeOrientations] = useState<Map<string, "landscape" | "portrait">>(new Map());
 
-  function detectOrientation(src: string): Promise<"landscape" | "portrait"> {
-    return new Promise((resolve) => {
-      const img = new window.Image();
-      img.onload = () => {
-        const ratio = img.naturalWidth / Math.max(1, img.naturalHeight);
-        resolve(ratio >= 1.08 ? "landscape" : "portrait");
-      };
-      img.onerror = () => resolve("portrait");
-      img.src = src;
-    });
+  function getPhotoOrientation(photo: GalleryPhoto): "landscape" | "portrait" {
+    if (photo.orientation) return photo.orientation;
+    if (photo.width && photo.height) {
+      return photo.width >= photo.height ? "landscape" : "portrait";
+    }
+    const lower = photo.fileName.toLowerCase();
+    const likelyLandscape =
+      lower.includes("landscape") ||
+      lower.includes("sunset") ||
+      lower.includes("bridge") ||
+      lower.includes("mountain") ||
+      lower.includes("coast") ||
+      lower.includes("city") ||
+      lower.includes("wide") ||
+      lower.includes("street");
+    if (likelyLandscape) return "landscape";
+    return "portrait";
   }
 
   const weddingEngagementSections = useMemo(() => {
@@ -557,57 +562,9 @@ function GallerySection({ category, photos }: { category: GalleryCategory; photo
 
     const sorted = cinematicCreativeOrder(syntheticColorData);
     creativeSortCacheRef.current.set(cacheKey, sorted);
-
-    const orientations = new Map<string, "landscape" | "portrait">();
-    const uncached = sorted.filter((photo) => !orientationCacheRef.current.has(photo.src));
-
-    if (uncached.length > 0) {
-      Promise.all(
-        uncached.map(async (photo) => ({
-          src: photo.src,
-          orientation: await detectOrientation(photo.src)
-        }))
-      )
-        .then((results) => {
-          results.forEach(({ src, orientation }) => orientationCacheRef.current.set(src, orientation));
-        })
-        .finally(() => {
-          sorted.forEach((photo) => orientations.set(photo.src, orientationCacheRef.current.get(photo.src) ?? "portrait"));
-          setCreativeOrientations(orientations);
-          setDisplayPhotos(sorted);
-          setIsCreativePreparing(false);
-        });
-      return;
-    }
-
-    sorted.forEach((photo) => orientations.set(photo.src, orientationCacheRef.current.get(photo.src) ?? "portrait"));
-    setCreativeOrientations(orientations);
     setDisplayPhotos(sorted);
     setIsCreativePreparing(false);
   }, [category, photos]);
-
-  useEffect(() => {
-    const uncached = orderedPhotos.filter((photo) => !orientationCacheRef.current.has(photo.src));
-
-    if (uncached.length === 0) {
-      const next = new Map<string, "landscape" | "portrait">();
-      orderedPhotos.forEach((photo) => next.set(photo.src, orientationCacheRef.current.get(photo.src) ?? "portrait"));
-      setCreativeOrientations(next);
-      return;
-    }
-
-    Promise.all(
-      uncached.map(async (photo) => ({
-        src: photo.src,
-        orientation: await detectOrientation(photo.src)
-      }))
-    ).then((results) => {
-      results.forEach(({ src, orientation }) => orientationCacheRef.current.set(src, orientation));
-      const next = new Map<string, "landscape" | "portrait">();
-      orderedPhotos.forEach((photo) => next.set(photo.src, orientationCacheRef.current.get(photo.src) ?? "portrait"));
-      setCreativeOrientations(next);
-    });
-  }, [orderedPhotos]);
 
   useEffect(() => {
     setActivePhotoIndex(null);
@@ -667,7 +624,7 @@ function GallerySection({ category, photos }: { category: GalleryCategory; photo
                   <p className="mt-1 text-sm text-ink/70">{group.subtitle}</p>
                   <div className="mt-3 grid grid-flow-row-dense grid-cols-1 items-start gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4 lg:gap-5 xl:grid-cols-5">
                     {photos.map((photo, index) => {
-                      const orientation = creativeOrientations.get(photo.src) ?? "portrait";
+                      const orientation = getPhotoOrientation(photo);
                       const isLandscape = orientation === "landscape";
                       return (
                       <figure
@@ -724,7 +681,7 @@ function GallerySection({ category, photos }: { category: GalleryCategory; photo
               ) : (
                 <div className="mt-3 grid grid-flow-row-dense grid-cols-1 items-start gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4 lg:gap-5 xl:grid-cols-5">
                   {creativePhotosForFlow.map((photo, index) => {
-                    const orientation = creativeOrientations.get(photo.src) ?? "portrait";
+                    const orientation = getPhotoOrientation(photo);
                     const isLandscape = orientation === "landscape";
                     return (
                       <figure

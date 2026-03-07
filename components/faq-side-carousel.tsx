@@ -17,13 +17,6 @@ export function FAQSideCarousel({ photos }: FAQSideCarouselProps) {
   const current = useMemo(() => photos[index], [photos, index]);
 
   useEffect(() => {
-    photos.forEach((photo) => {
-      const img = new window.Image();
-      img.src = photo.src;
-    });
-  }, [photos]);
-
-  useEffect(() => {
     if (photos.length <= 1) return;
 
     const id = window.setInterval(() => {
