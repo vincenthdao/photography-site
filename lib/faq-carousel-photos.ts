@@ -1,41 +1,19 @@
-import { promises as fs } from "fs";
-import path from "path";
+import galleryManifest from "@/data/gallery-manifest.json";
 
 export interface FAQCarouselPhoto {
   src: string;
   alt: string;
 }
 
-const imageExtensions = new Set([".jpg", ".jpeg", ".png", ".webp", ".avif"]);
-
-function altFromFileName(fileName: string): string {
-  return fileName
-    .replace(/\.[^.]+$/, "")
-    .replace(/[-_]+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-async function readCategory(category: string): Promise<FAQCarouselPhoto[]> {
-  const dir = path.join(process.cwd(), "public", "images", "gallery", category);
-  try {
-    const entries = await fs.readdir(dir, { withFileTypes: true });
-    return entries
-      .filter((entry) => entry.isFile() && imageExtensions.has(path.extname(entry.name).toLowerCase()))
-      .map((entry) => ({
-        src: `/images/gallery/${category}/${encodeURIComponent(entry.name)}`,
-        alt: altFromFileName(entry.name)
-      }));
-  } catch {
-    return [];
-  }
-}
+type GalleryManifest = {
+  weddings: FAQCarouselPhoto[];
+  engagements: FAQCarouselPhoto[];
+};
 
 export async function getFAQCarouselPhotos(): Promise<FAQCarouselPhoto[]> {
-  const [weddings, engagements] = await Promise.all([
-    readCategory("weddings"),
-    readCategory("engagements")
-  ]);
+  const data = galleryManifest as GalleryManifest;
+  const weddings = data.weddings ?? [];
+  const engagements = data.engagements ?? [];
 
   const interleaved: FAQCarouselPhoto[] = [];
   const max = Math.max(weddings.length, engagements.length);
