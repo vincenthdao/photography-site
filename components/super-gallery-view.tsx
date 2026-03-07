@@ -71,28 +71,10 @@ const weddingFlow: FlowGroup[] = [
 
 const engagementFlow: FlowGroup[] = [
   {
-    id: "portraits",
-    title: "Portraits",
-    subtitle: "Intimate portraits with calm, editorial direction.",
-    keywords: ["portrait", "close", "couple", "embrace", "look", "gaze"]
-  },
-  {
-    id: "movement",
-    title: "Movement",
-    subtitle: "Natural interaction and in-between moments.",
-    keywords: ["walk", "run", "laugh", "dance", "motion", "movement", "candid"]
-  },
-  {
-    id: "place",
-    title: "Place",
-    subtitle: "Frames that anchor your story in landscape and atmosphere.",
-    keywords: ["landscape", "wide", "sunset", "coast", "city", "mountain", "location"]
-  },
-  {
-    id: "details",
-    title: "Details",
-    subtitle: "Selective detail frames that support the story without taking over.",
-    keywords: ["texture", "hands", "close", "detail"]
+    id: "story",
+    title: "Story",
+    subtitle: "A full engagement narrative, curated as one flowing sequence.",
+    keywords: []
   }
 ];
 
@@ -143,6 +125,11 @@ function matchesKeywords(fileName: string, keywords: string[]): boolean {
 function splitByFlow(photos: GalleryPhoto[], flow: FlowGroup[]): Array<{ group: FlowGroup; photos: GalleryPhoto[] }> {
   const used = new Set<string>();
   const sections = flow.map((group) => {
+    if (group.keywords.length === 0) {
+      const remaining = photos.filter((photo) => !used.has(photo.src));
+      remaining.forEach((photo) => used.add(photo.src));
+      return { group, photos: remaining };
+    }
     const groupPhotos = photos.filter((photo) => !used.has(photo.src) && matchesKeywords(photo.fileName, group.keywords));
     groupPhotos.forEach((photo) => used.add(photo.src));
     return { group, photos: groupPhotos };
