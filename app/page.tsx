@@ -211,6 +211,9 @@ export default async function HomePage() {
                           alt={`${item.name} preview`}
                           width={700}
                           height={900}
+                          loading="lazy"
+                          quality={46}
+                          sizes="(min-width: 1024px) 11vw, (min-width: 768px) 18vw, 42vw"
                           className="h-24 w-full object-cover sm:h-28"
                         />
                       </figure>
@@ -225,6 +228,9 @@ export default async function HomePage() {
                           alt={`${item.name} preview`}
                           width={700}
                           height={900}
+                          loading="lazy"
+                          quality={46}
+                          sizes="(min-width: 1024px) 11vw, (min-width: 768px) 18vw, 42vw"
                           className="h-24 w-full object-cover sm:h-28"
                         />
                       </figure>
