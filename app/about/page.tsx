@@ -43,7 +43,16 @@ export default function AboutPage() {
           </Link>
         </div>
         <div className="relative overflow-hidden rounded-3xl shadow-soft">
-          <Image src="/images/about.jpg" alt="Photographer behind the scenes with camera" width={1200} height={1400} className="h-full min-h-[380px] w-full object-cover" />
+          <Image
+            src="/images/about.jpg"
+            alt="Photographer behind the scenes with camera"
+            width={1200}
+            height={1400}
+            priority
+            quality={65}
+            sizes="(min-width: 1024px) 42vw, 100vw"
+            className="h-full min-h-[380px] w-full object-cover"
+          />
         </div>
       </section>
 

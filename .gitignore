@@ -4,4 +4,5 @@ node_modules
 .env
 .DS_Store
 public/images/_backup_originals_*/
+public/images/_backup_*/
 tsconfig.tsbuildinfo
