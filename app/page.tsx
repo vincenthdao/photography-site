@@ -10,6 +10,7 @@ import { ServiceType } from "@/data/types";
 import { services } from "@/data/services";
 import { FeaturedWork, getFeaturedWorks } from "@/lib/featured-works";
 import { siteConfig } from "@/lib/site";
+import { getTestimonialAlbumPreviews } from "@/lib/testimonial-albums";
 
 function hashString(value: string): number {
   let hash = 5381;
@@ -68,6 +69,12 @@ export default async function HomePage() {
   const featuredWorks = await getFeaturedWorks();
   const storyFrames = selectArtistFrames(featuredWorks);
   const trustTestimonials = testimonials.slice(0, 2);
+  const testimonialWithPreviews = await Promise.all(
+    trustTestimonials.map(async (item) => ({
+      ...item,
+      previewImages: (await getTestimonialAlbumPreviews(item.albumKey, 4)).slice(0, 4)
+    }))
+  );
   const primaryServiceOrder: ServiceType[] = ["weddings", "engagements", "adventure"];
   const primaryServices = primaryServiceOrder
     .map((slug) => services.find((service) => service.slug === slug))
@@ -193,12 +200,51 @@ export default async function HomePage() {
         <div className="rounded-3xl border border-black/10 bg-white/92 p-6 shadow-soft sm:p-8">
           <p className="text-xs uppercase tracking-[0.2em] text-pine/80">Trusted Experience</p>
           <div className="mt-4 grid gap-4 md:grid-cols-2">
-            {trustTestimonials.map((item) => (
+            {testimonialWithPreviews.map((item) => (
               <blockquote key={`${item.name}-${item.location}`} className="rounded-2xl border border-black/10 bg-[#f7f1e8] p-4">
+                {item.previewImages.length > 0 ? (
+                  <div className="mb-4 grid grid-cols-2 gap-2">
+                    {item.previewImages.map((src, index) => (
+                      <figure key={`${item.name}-${src}-${index}`} className="overflow-hidden rounded-lg border border-black/10 bg-[#efe5d8]">
+                        <Image
+                          src={src}
+                          alt={`${item.name} preview`}
+                          width={700}
+                          height={900}
+                          className="h-24 w-full object-cover sm:h-28"
+                        />
+                      </figure>
+                    ))}
+                  </div>
+                ) : item.featuredImages?.length ? (
+                  <div className="mb-4 grid grid-cols-2 gap-2">
+                    {item.featuredImages.slice(0, 4).map((src, index) => (
+                      <figure key={`${item.name}-${src}-${index}`} className="overflow-hidden rounded-lg border border-black/10 bg-[#efe5d8]">
+                        <Image
+                          src={src}
+                          alt={`${item.name} preview`}
+                          width={700}
+                          height={900}
+                          className="h-24 w-full object-cover sm:h-28"
+                        />
+                      </figure>
+                    ))}
+                  </div>
+                ) : null}
                 <p className="text-sm leading-relaxed text-ink/85">“{item.quote}”</p>
                 <footer className="mt-3 text-xs uppercase tracking-[0.14em] text-ink/65">
                   {item.name} · {item.location}
                 </footer>
+                {item.pixiesetUrl ? (
+                  <a
+                    href={item.pixiesetUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-3 inline-block rounded-full border border-ink/20 bg-white/70 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-ink transition hover:border-pine hover:text-pine"
+                  >
+                    View Album
+                  </a>
+                ) : null}
               </blockquote>
             ))}
           </div>

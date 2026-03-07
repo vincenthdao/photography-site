@@ -26,6 +26,9 @@ export interface Testimonial {
   serviceType: ServiceType;
   quote: string;
   location: string;
+  albumKey?: string;
+  pixiesetUrl?: string;
+  featuredImages?: string[];
 }
 
 export interface PortfolioItem {
