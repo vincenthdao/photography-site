@@ -34,25 +34,33 @@ const pricing = [
 
 const faqs = [
   {
-    q: "We feel awkward in front of the camera. Do you guide us?",
-    a: "Yes. I guide with simple prompts and direction that feels natural, so you never feel stiff or over-posed."
+    q: "What makes working with you different?",
+    a: "I bring calm energy, clear direction, and a documentary eye. You get guidance when you need it, space when you do not, and photos that feel like your real dynamic."
   },
   {
-    q: "What areas do you cover?",
-    a: "San Francisco, Oakland, Berkeley, Marin, and surrounding Bay Area locations."
+    q: "We are not used to being photographed. Is that okay?",
+    a: "Completely. Most couples and portrait clients tell me this at first. I keep sessions relaxed, use simple prompts, and help you settle into something that feels natural fast."
   },
   {
-    q: "What if we are unsure about location?",
-    a: "I help you choose based on light, vibe, and how you want the images to feel."
+    q: "How do you help us choose the right Bay Area location?",
+    a: "I help you choose based on light, mood, privacy, and how you want the photos to feel. We can go clean and architectural, coastal and cinematic, or warm and intimate."
   },
   {
-    q: "How do we reserve a date?",
-    a: "Submit the inquiry form with your preferred dates and session type. I will follow up with availability and next steps."
+    q: "What kind of photos can we expect from you?",
+    a: "Natural, editorial, and emotional images with strong composition and honest moments. You will get a gallery that feels elevated but still fully like you."
+  },
+  {
+    q: "Do you only photograph weddings and couples?",
+    a: "Weddings and couples are a core part of my work, but I also photograph high-quality portraits and human-centered creative sessions. The same intentional style carries through all of it."
+  },
+  {
+    q: "How do we reserve a June-August date?",
+    a: "Send the inquiry form with your preferred date and session type. I will follow up personally with availability, recommendations, and next steps."
   }
 ] as const;
 
 export default async function BayAreaSessionsPage() {
-  const images = await getBayAreaSessionPhotos(12);
+  const images = await getBayAreaSessionPhotos(8);
 
   return (
     <section className="mx-auto w-full max-w-6xl px-4 pb-16 pt-12 sm:px-6 lg:px-8 lg:pt-16">
@@ -92,9 +100,9 @@ export default async function BayAreaSessionsPage() {
                 alt={image.alt || "Bay Area session preview"}
                 width={1600}
                 height={2200}
-                priority={index < 2}
-                quality={58}
-                sizes="(min-width: 1280px) 22vw, (min-width: 768px) 31vw, 48vw"
+                priority={index < 1}
+                quality={46}
+                sizes="(min-width: 1280px) 20vw, (min-width: 768px) 30vw, 50vw"
                 className="block h-auto w-full"
               />
             </figure>
