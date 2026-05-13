@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { Suspense } from "react";
 import { InquiryForm } from "@/components/inquiry-form";
 import { SectionHeader } from "@/components/section-header";
 import { getBayAreaSessionPhotos } from "@/lib/bay-area-session-photos";
@@ -171,7 +172,9 @@ export default async function BayAreaSessionsPage() {
           title="Request your date"
           subtitle="Tell me what you are planning, and I will follow up personally."
         />
-        <InquiryForm submitLabel="Request My Date" />
+        <Suspense fallback={<div className="rounded-3xl border border-black/10 bg-white p-6 shadow-soft sm:p-8">Loading form...</div>}>
+          <InquiryForm submitLabel="Request My Date" />
+        </Suspense>
       </div>
     </section>
   );
