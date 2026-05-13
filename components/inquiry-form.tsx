@@ -29,7 +29,11 @@ const serviceLabels: Record<ServiceType, string> = {
   landscape: "Landscape"
 };
 
-export function InquiryForm() {
+interface InquiryFormProps {
+  submitLabel?: string;
+}
+
+export function InquiryForm({ submitLabel = "Send Inquiry" }: InquiryFormProps = {}) {
   const searchParams = useSearchParams();
   const defaultService = useMemo(() => {
     const value = searchParams.get("service");
@@ -231,7 +235,7 @@ export function InquiryForm() {
         disabled={status === "submitting"}
         className="rounded-full bg-pine px-6 py-3 text-sm font-semibold text-oat transition hover:bg-ink disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {status === "submitting" ? "Sending..." : "Send Inquiry"}
+        {status === "submitting" ? "Sending..." : submitLabel}
       </button>
     </form>
   );

@@ -51,7 +51,7 @@ export default function ServicesPage() {
                 View Gallery
               </Link>
               <Link
-                href="/contact?service=engagements"
+                href="/?service=engagements#inquire"
                 className="mt-5 inline-block rounded-full border border-ink/20 px-4 py-2 text-sm font-semibold text-ink transition hover:border-pine hover:text-pine"
               >
                 Inquire
@@ -98,7 +98,7 @@ export default function ServicesPage() {
               View Gallery
             </Link>
             <Link
-              href="/contact?service=weddings"
+              href="/?service=weddings#inquire"
               className="mt-6 inline-block rounded-full border border-ink/20 px-4 py-2 text-sm font-semibold text-ink transition hover:border-pine hover:text-pine"
             >
               Inquire
@@ -124,7 +124,7 @@ export default function ServicesPage() {
               </p>
               <p className="mt-4 text-sm text-ink/70">Adventure sessions are tailored to each location and vision. Please reach out for custom planning and proposal details.</p>
               <Link
-                href="/contact?service=adventure"
+                href="/?service=adventure#inquire"
                 className="mt-5 inline-block rounded-full border border-ink/20 px-4 py-2 text-sm font-semibold text-ink transition hover:border-pine hover:text-pine"
               >
                 Inquire
@@ -166,7 +166,7 @@ export default function ServicesPage() {
         </div>
         <div className="mt-6 flex justify-start">
           <Link
-            href="/contact"
+            href="/#inquire"
             className="inline-block rounded-full border border-[#2f3a34]/35 bg-white/70 px-5 py-2.5 text-sm font-semibold text-[#1f2924] transition hover:border-[#2f3a34]/70 hover:bg-white/90"
           >
             Ask About Other Work

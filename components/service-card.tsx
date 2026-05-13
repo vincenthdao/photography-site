@@ -18,7 +18,7 @@ export function ServiceCard({ service }: ServiceCardProps) {
         <p className="mt-4 text-sm text-ink/85">{service.details}</p>
         <p className="mt-4 text-sm font-semibold text-pine">Starting at {service.startingPrice}</p>
         <Link
-          href={`/contact?service=${service.slug}`}
+          href={`/?service=${service.slug}#inquire`}
           className="mt-5 inline-block rounded-full border border-ink/20 px-4 py-2 text-sm font-semibold text-ink transition hover:border-pine hover:text-pine"
         >
           Let's Talk

@@ -14,7 +14,7 @@ export function CTASection({ title, description, buttonText = "Begin Inquiry" }:
         <h2 className="mt-3 font-serif text-4xl leading-[0.95] sm:text-5xl">{title}</h2>
         <p className="mt-4 max-w-3xl text-base text-oat/90 sm:text-lg">{description}</p>
         <Link
-          href="/contact"
+          href="/#inquire"
           className="mt-7 inline-block rounded-full bg-oat px-6 py-3 text-sm font-semibold text-ink transition hover:bg-white"
         >
           {buttonText}

@@ -15,12 +15,12 @@ export function Navbar() {
             </Link>
           ))}
         </nav>
-        <Link
-          href="/contact"
+        <a
+          href="/#inquire"
           className="rounded-full bg-pine px-4 py-2 text-sm font-semibold text-oat transition hover:bg-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pine"
         >
           Inquire
-        </Link>
+        </a>
       </div>
       <nav aria-label="Mobile" className="mx-auto flex w-full max-w-6xl gap-5 overflow-x-auto px-4 pb-3 text-sm md:hidden">
         {navLinks.map((link) => (

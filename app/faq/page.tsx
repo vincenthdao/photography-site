@@ -186,7 +186,7 @@ export default async function FAQPage() {
             <p className="font-serif text-2xl text-ink">Still wondering about something?</p>
             <p className="mt-2 text-sm text-ink/80">If your question is not here, reach out directly. I am happy to walk through anything together.</p>
             <Link
-              href="/contact"
+              href="/#inquire"
               className="mt-4 inline-block rounded-full border border-ink/20 px-4 py-2 text-sm font-semibold text-ink transition hover:border-pine hover:text-pine"
             >
               Inquire
